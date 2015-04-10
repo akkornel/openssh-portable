@@ -44,8 +44,11 @@
 #include "channels.h"
 #include "session.h"
 #include "misc.h"
+#include "servconf.h"
 
 #include "ssh-gss.h"
+
+extern ServerOptions options;
 
 static ssh_gssapi_client gssapi_client =
     { GSS_C_EMPTY_BUFFER, GSS_C_EMPTY_BUFFER,
@@ -343,6 +346,11 @@ ssh_gssapi_do_child(char ***envp, u_int *envsizep)
 		child_set_env(envp, envsizep, gssapi_client.store.envvar,
 		    gssapi_client.store.envval);
 	}
+    if (options.gss_set_env) {
+        debug("Exporting GSSAPI principal name to child environment");
+        child_set_env(envp, envsizep, "SSH_GSSAPI_DISPLAYNAME",
+                      gssapi_client.displayname.value);
+    }
 }
 
 /* Privileged */
