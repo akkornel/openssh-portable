@@ -188,8 +188,13 @@ ssh_gssapi_krb5_storecreds(ssh_gssapi_client *client)
 	snprintf(client->store.envval, len, "FILE:%s", client->store.filename);
 
 #ifdef USE_PAM
-	if (options.use_pam)
+	if (options.use_pam) {
 		do_pam_putenv(client->store.envvar, client->store.envval);
+		if (options.gss_set_env) {
+			do_pam_putenv("SSH_GSSAPI_DISPLAYNAME",
+			              client->displayname.value);
+		}
+    }
 #endif
 
 	krb5_cc_close(krb_context, ccache);
